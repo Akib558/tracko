@@ -24,36 +24,77 @@ class _HomePageState extends State<HomePage> {
   final _myBox = Hive.box("Tracko_Database");
 
   List habitsList = [
-    ["eat", false],
-    ["sleep", false],
-    ["walk", false],
-    ["read", false],
+    [
+      "eat",
+      false,
+      [1],
+      []
+    ],
+    [
+      "sleep",
+      false,
+      [1],
+      []
+    ],
+    [
+      "walk",
+      false,
+      [1],
+      []
+    ],
+    [
+      "read",
+      false,
+      [1],
+      []
+    ],
   ];
 
-  List<String> labels = [
-    "All",
-    "Daily",
-    "Weekly",
-    "Focus",
-    "Dailway",
-    "Weeklysdfs",
-    "Focussd"
-  ];
+  Map<String, int> labels = {
+    "All": 1,
+    "Daily": 2,
+    "Weekly": 3,
+    "Focus": 4,
+    "Dailway": 5,
+    "Weeklysdfs": 6,
+    "Focussd": 7
+  };
+
+  // List<String> labels = [
+  //   "All",
+  //   "Daily",
+  //   "Weekly",
+  //   "Focus",
+  //   "Dailway",
+  //   "Weeklysdfs",
+  //   "Focussd"
+  // ];
+
+  Map<String, int> folders = {
+    "Today": 1,
+    "Inbox": 2,
+    "Tags": 3,
+  };
 
   List<int> showItem = [];
   int val = 0;
+
+  List<dynamic> label = [];
+  List<dynamic> folder = [];
 
   // List<int> lableListInititalizer = [
   //   for (int i = 0; i < habitsList.length; i++) 0
   // ];
   late List<int> labelsState;
 
-  List labelsList = [];
+  // List labelsList = [];
+  // List foldersList = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    print(jsonEncode(labels));
     // _myBox.delete("HabitList");
     // _myBox.delete("LabelsList");
     // _myBox.delete("Labels");
@@ -65,28 +106,50 @@ class _HomePageState extends State<HomePage> {
     if (_myBox.get("Labels") == null) {
       _myBox.put("Labels", labels);
     } else {
-      labels = _myBox.get("Labels") as List<String>;
+      labels = Map<String, int>.from(_myBox.get("Labels"));
+    }
+
+    if (_myBox.get("Folders") == null) {
+      _myBox.put("Folders", folders);
+    } else {
+      folders = Map<String, int>.from(_myBox.get("Folders"));
     }
     // int len = habitsList.length;
-    int len = 10;
+    // int len = 10;
 
-    if (_myBox.get("LabelsList") == null) {
-      // String temp = jsonEncode(labelsList);
-      labelsList.add(List<int>.filled(len, 1));
-      // labelsList[labels[0]] = List<int>.filled(habitsList.length, 1);
-      for (var i = 1; i < labels.length; i++) {
-        labelsList.add(List<int>.filled(len, 0));
-        // labelsList[labels[i]] = List<int>.filled(habitsList.length, 0);
-      }
-      // print(temp);
-      _myBox.put("LabelsList", labelsList);
-      // _myBox.put("LabelsList", jsonEncode(labelsList) as String);
-    } else {
-      labelsList = _myBox.get("LabelsList");
-    }
+    // if (_myBox.get("LabelsList") == null) {
+    //   // String temp = jsonEncode(labelsList);
+    //   labelsList.add(List<int>.filled(len, 1));
+    //   // labelsList[labels[0]] = List<int>.filled(habitsList.length, 1);
+    //   for (var i = 1; i < labels.length; i++) {
+    //     labelsList.add(List<int>.filled(len, 0));
+    //     // labelsList[labels[i]] = List<int>.filled(habitsList.length, 0);
+    //   }
+    //   // print(temp);
+    //   _myBox.put("LabelsList", labelsList);
+    //   // _myBox.put("LabelsList", jsonEncode(labelsList) as String);
+    // } else {
+    //   labelsList = _myBox.get("LabelsList");
+    // }
 
-    // showItem = labelsList[labels[0]];
-    showItem = labelsList[0];
+    // if (_myBox.get("FoldersList") == null) {
+    //   // String temp = jsonEncode(labelsList);
+    //   foldersList.add(List<int>.filled(len, 1));
+    //   ;
+    //   // labelsList[labels[0]] = List<int>.filled(habitsList.length, 1);
+    //   for (var i = 1; i < labels.length; i++) {
+    //     foldersList.add(List<int>.filled(len, 0));
+    //     // labelsList[labels[i]] = List<int>.filled(habitsList.length, 0);
+    //   }
+    //   // print(temp);
+    //   _myBox.put("LabelsList", labelsList);
+    //   // _myBox.put("LabelsList", jsonEncode(labelsList) as String);
+    // } else {
+    //   foldersList = _myBox.get("LabelsList");
+    // }
+
+    // // showItem = labelsList[labels[0]];
+    // showItem = labelsList[0];
 
     val = 0;
 
@@ -99,6 +162,13 @@ class _HomePageState extends State<HomePage> {
     //     _showBottomDialog(context);
     //   }
     // });
+    List<String> pp = labels.keys.toList();
+    List<int> pp2 = labels.values.toList();
+    label = List<List<dynamic>>.generate(
+        pp.length, (index) => [pp[index], pp2[index]]);
+
+    folder = folders.keys.toList();
+
     labelsState = List<int>.filled(labels.length, 0);
   }
 
@@ -111,6 +181,17 @@ class _HomePageState extends State<HomePage> {
 
   bool addItemStateButton = true;
   bool showLabels = false;
+  int currentlyShowing = 1;
+  bool folderClicked = false;
+  bool labelClicked = false;
+  List<Widget> generateWidgetList() {
+    // Convert the list of items to a list of widgets
+    return label.map((item) {
+      return ListTile(
+        title: Text(item),
+      );
+    }).toList();
+  }
 
   // bool pp = true;
   @override
@@ -122,43 +203,90 @@ class _HomePageState extends State<HomePage> {
           title: Text("Tracko"),
         ),
         drawer: Drawer(
-          width: 200,
+          // width: 200,
           child: ListView.builder(
-            itemCount: labels.length,
+            itemCount: folders.length,
             itemBuilder: (context, index) {
-              return Container(
-                  padding: EdgeInsets.all(2),
-                  child: GestureDetector(
-                    onTap: () {
-                      print("In draweer");
-                      // print(labelsList[index]);
-                      print(index);
-                      print(labelsList);
-                      setState(() {
-                        // val = index;
-                        showItem = labelsList[index];
-                        Navigator.of(context).pop();
-                      });
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(5),
-                      child: Row(
-                        children: [
-                          Image(
-                            image:
-                                AssetImage('assets/images/label_image_2.png'),
-                            height: 20,
-                            width: 20,
-                            color: Colors.blue,
+              if (index < 2) {
+                return Text(folder[index]);
+              } else if (index == 2) {
+                String selectedItem = label[0][0];
+                return ExpansionTile(
+                  initiallyExpanded: true,
+                  title: Text(folder[2]),
+                  children: label.map((item) {
+                    return Container(
+                        padding: EdgeInsets.all(2),
+                        child: GestureDetector(
+                          onTap: () {
+                            print("In draweer");
+                            // print(labelsList[index]);
+                            print(index);
+                            // print(labelsList);
+                            setState(() {
+                              // val = index;
+                              // showItem = labelsList[index];
+                              currentlyShowing = labels[item[0]] as int;
+                              print("CLICKED");
+                              Navigator.of(context).pop();
+                            });
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(5),
+                            child: Row(
+                              children: [
+                                Image(
+                                  image: AssetImage(
+                                      'assets/images/label_image_2.png'),
+                                  height: 20,
+                                  width: 20,
+                                  color: Colors.blue,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text(item[0])
+                              ],
+                            ),
                           ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Text(labels[index])
-                        ],
-                      ),
-                    ),
-                  ));
+                        ));
+                  }).toList(),
+                  // [
+                  //   Text("1"),
+                  //   Text("1"),
+
+                  //   Text("1"),
+
+                  // Container(
+                  //   child: ListView.builder(
+                  //     itemCount: label.length,
+                  //     itemBuilder: (context, index) {
+                  //       return Text(label[index]);
+                  //     },
+                  //   ),
+                  // )
+                  // Padding(
+                  //   padding: const EdgeInsets.all(16.0),
+                  //   child: DropdownButton<String>(
+                  //     value: selectedItem,
+                  //     items: label.map((String item) {
+                  //       return DropdownMenuItem<String>(
+                  //         value: item,
+                  //         child: Text(item),
+                  //       );
+                  //     }).toList(),
+                  //     onChanged: (String? newValue) {
+                  //       setState(() {
+                  //         selectedItem = newValue ?? '';
+                  //       });
+                  //     },
+                  //   ),
+                  // ),
+                  // ],
+                );
+              } else {
+                return Container();
+              }
             },
           ),
         ),
@@ -172,7 +300,7 @@ class _HomePageState extends State<HomePage> {
                   child: ListView.builder(
                       itemCount: habitsList.length,
                       itemBuilder: (context, index) {
-                        if (showItem[index] == 1) {
+                        if (habitsList[index][2].contains(currentlyShowing)) {
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Slidable(
@@ -390,7 +518,7 @@ class _HomePageState extends State<HomePage> {
                                           SizedBox(
                                             width: 5,
                                           ),
-                                          Text(labels[index])
+                                          Text(label[index][0])
                                         ],
                                       ),
                                     ),
@@ -448,16 +576,21 @@ class _HomePageState extends State<HomePage> {
                           Spacer(),
                           GestureDetector(
                             onTap: () {
-                              habitsList.add([itemInput.text, false]);
+                              habitsList.add([
+                                itemInput.text,
+                                false,
+                                [1],
+                                []
+                              ]);
                               for (var i = 0; i < labelsState.length; i++) {
                                 if (labelsState[i] == 1) {
-                                  labelsList[i][habitsList.length - 1] = 1;
+                                  habitsList.last[2].add(labels[label[i][0]]);
                                 }
                               }
-                              labelsList[0][habitsList.length - 1] = 1;
+                              // labelsList[0][habitsList.length - 1] = 1;
                               _myBox.put("Labels", labels);
                               _myBox.put("HabitList", habitsList);
-                              _myBox.put("LabelsList", labelsList);
+                              // _myBox.put("LabelsList", labelsList);
 
                               setState(() {
                                 // widget.updateParentCallBack

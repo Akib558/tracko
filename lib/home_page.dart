@@ -7,6 +7,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tracko/edit_item.dart';
 import 'package:tracko/add_item.dart';
 import 'package:tracko/all_colors.dart';
+import 'dart:math';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -86,6 +87,7 @@ class _HomePageState extends State<HomePage> {
   //   for (int i = 0; i < habitsList.length; i++) 0
   // ];
   late List<int> labelsState;
+  late List<int> foldersState;
 
   // List labelsList = [];
   // List foldersList = [];
@@ -114,62 +116,26 @@ class _HomePageState extends State<HomePage> {
     } else {
       folders = Map<String, int>.from(_myBox.get("Folders"));
     }
-    // int len = habitsList.length;
-    // int len = 10;
-
-    // if (_myBox.get("LabelsList") == null) {
-    //   // String temp = jsonEncode(labelsList);
-    //   labelsList.add(List<int>.filled(len, 1));
-    //   // labelsList[labels[0]] = List<int>.filled(habitsList.length, 1);
-    //   for (var i = 1; i < labels.length; i++) {
-    //     labelsList.add(List<int>.filled(len, 0));
-    //     // labelsList[labels[i]] = List<int>.filled(habitsList.length, 0);
-    //   }
-    //   // print(temp);
-    //   _myBox.put("LabelsList", labelsList);
-    //   // _myBox.put("LabelsList", jsonEncode(labelsList) as String);
-    // } else {
-    //   labelsList = _myBox.get("LabelsList");
-    // }
-
-    // if (_myBox.get("FoldersList") == null) {
-    //   // String temp = jsonEncode(labelsList);
-    //   foldersList.add(List<int>.filled(len, 1));
-    //   ;
-    //   // labelsList[labels[0]] = List<int>.filled(habitsList.length, 1);
-    //   for (var i = 1; i < labels.length; i++) {
-    //     foldersList.add(List<int>.filled(len, 0));
-    //     // labelsList[labels[i]] = List<int>.filled(habitsList.length, 0);
-    //   }
-    //   // print(temp);
-    //   _myBox.put("LabelsList", labelsList);
-    //   // _myBox.put("LabelsList", jsonEncode(labelsList) as String);
-    // } else {
-    //   foldersList = _myBox.get("LabelsList");
-    // }
-
-    // // showItem = labelsList[labels[0]];
-    // showItem = labelsList[0];
 
     val = 0;
 
     print(habitsList);
     print(labels);
-    // habitsList.removeLast();
-    // _myBox.put("HabitList", habitsList);
-    // _focusNode.addListener(() {
-    //   if (_focusNode.hasFocus) {
-    //     _showBottomDialog(context);
-    //   }
-    // });
+
     List<String> pp = labels.keys.toList();
     List<int> pp2 = labels.values.toList();
     label = List<List<dynamic>>.generate(
         pp.length, (index) => [pp[index], pp2[index]]);
 
-    folder = folders.keys.toList();
+    // folder = folders.keys.toList();
+
+    pp = folders.keys.toList();
+    pp2 = folders.values.toList();
+    folder = List<List<dynamic>>.generate(
+        pp.length, (index) => [pp[index], pp2[index]]);
 
     labelsState = List<int>.filled(labels.length, 0);
+    foldersState = List<int>.filled(folders.length, 0);
   }
 
   @override
@@ -181,9 +147,18 @@ class _HomePageState extends State<HomePage> {
 
   bool addItemStateButton = true;
   bool showLabels = false;
+  bool showFolders = false;
   int currentlyShowing = 1;
   bool folderClicked = false;
-  bool labelClicked = false;
+  bool labelClicked = true;
+  bool isExpanded = false;
+
+  void toggleExpansion() {
+    setState(() {
+      isExpanded = !isExpanded;
+    });
+  }
+
   List<Widget> generateWidgetList() {
     // Convert the list of items to a list of widgets
     return label.map((item) {
@@ -191,6 +166,28 @@ class _HomePageState extends State<HomePage> {
         title: Text(item),
       );
     }).toList();
+  }
+
+  int generateUniqueRandom(int min, int max) {
+    if (max <= min) {
+      throw Exception('Max must be greater than min.');
+    }
+
+    Set<int> usedNumbers = Set<int>();
+    Random random = Random();
+    int range = max - min + 1;
+
+    if (usedNumbers.length == range) {
+      throw Exception('All possible numbers have been generated.');
+    }
+
+    int randomNumber;
+    do {
+      randomNumber = random.nextInt(range) + min;
+    } while (usedNumbers.contains(randomNumber));
+
+    usedNumbers.add(randomNumber);
+    return randomNumber;
   }
 
   // bool pp = true;
@@ -204,90 +201,231 @@ class _HomePageState extends State<HomePage> {
         ),
         drawer: Drawer(
           // width: 200,
-          child: ListView.builder(
-            itemCount: folders.length,
-            itemBuilder: (context, index) {
-              if (index < 2) {
-                return Text(folder[index]);
-              } else if (index == 2) {
-                String selectedItem = label[0][0];
-                return ExpansionTile(
-                  initiallyExpanded: true,
-                  title: Text(folder[2]),
-                  children: label.map((item) {
-                    return Container(
-                        padding: EdgeInsets.all(2),
-                        child: GestureDetector(
-                          onTap: () {
-                            print("In draweer");
-                            // print(labelsList[index]);
-                            print(index);
-                            // print(labelsList);
-                            setState(() {
-                              // val = index;
-                              // showItem = labelsList[index];
-                              currentlyShowing = labels[item[0]] as int;
-                              print("CLICKED");
-                              Navigator.of(context).pop();
-                            });
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(5),
-                            child: Row(
-                              children: [
-                                Image(
-                                  image: AssetImage(
-                                      'assets/images/label_image_2.png'),
-                                  height: 20,
-                                  width: 20,
-                                  color: Colors.blue,
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text(item[0])
-                              ],
-                            ),
+          child: Column(
+            children: [
+              Flexible(
+                child: ListView.builder(
+                  itemCount: folders.length,
+                  itemBuilder: (context, index) {
+                    if (index < 2) {
+                      return GestureDetector(
+                        onTap: () {
+                          print("In draweer");
+                          // print(labelsList[index]);
+                          print(index);
+                          // print(labelsList);
+                          setState(() {
+                            // val = index;
+                            // showItem = labelsList[index];
+                            // currentlyShowing = labels[item[0]] as int;
+                            folderClicked = true;
+                            labelClicked = false;
+                            currentlyShowing = folders[folder[index][0]] as int;
+                            print("CLICKED");
+                            Navigator.of(context).pop();
+                          });
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(7),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Image(
+                                image: AssetImage(
+                                    "assets/images/${folder[index][0]}.png"),
+                                height: 20,
+                                width: 20,
+                                // color: Colors.blue,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                folder[index][0],
+                                style: TextStyle(fontSize: 16),
+                              )
+                            ],
                           ),
-                        ));
-                  }).toList(),
-                  // [
-                  //   Text("1"),
-                  //   Text("1"),
-
-                  //   Text("1"),
-
-                  // Container(
-                  //   child: ListView.builder(
-                  //     itemCount: label.length,
-                  //     itemBuilder: (context, index) {
-                  //       return Text(label[index]);
-                  //     },
-                  //   ),
-                  // )
-                  // Padding(
-                  //   padding: const EdgeInsets.all(16.0),
-                  //   child: DropdownButton<String>(
-                  //     value: selectedItem,
-                  //     items: label.map((String item) {
-                  //       return DropdownMenuItem<String>(
-                  //         value: item,
-                  //         child: Text(item),
-                  //       );
-                  //     }).toList(),
-                  //     onChanged: (String? newValue) {
-                  //       setState(() {
-                  //         selectedItem = newValue ?? '';
-                  //       });
-                  //     },
-                  //   ),
-                  // ),
-                  // ],
-                );
-              } else {
-                return Container();
-              }
-            },
+                        ),
+                      );
+                    } else if (index == 2) {
+                      // String selectedItem = label[0][0];
+                      return Expanded(
+                        child: Column(
+                          children: [
+                            InkWell(
+                              onTap: toggleExpansion,
+                              child: Container(
+                                color: isExpanded ? Colors.grey[300] : null,
+                                padding: EdgeInsets.all(2.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(7),
+                                      child: Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Image(
+                                            image: AssetImage(
+                                                'assets/images/label_image_2.png'),
+                                            height: 20,
+                                            width: 20,
+                                            // color: Colors.blue,
+                                          ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Text(
+                                            folder[index][0],
+                                            style: TextStyle(fontSize: 16),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    Icon(
+                                      isExpanded
+                                          ? Icons.keyboard_arrow_up
+                                          : Icons.keyboard_arrow_down,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            AnimatedContainer(
+                              duration: Duration(milliseconds: 100),
+                              height: isExpanded
+                                  ? MediaQuery.of(context)
+                                      .size
+                                      .height // Expand to full height
+                                  : 0.0,
+                              child: Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: isExpanded
+                                    ? Column(
+                                        children: label.map((item) {
+                                          return Container(
+                                              padding: EdgeInsets.all(2),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  print("In draweer");
+                                                  // print(labelsList[index]);
+                                                  print(index);
+                                                  // print(labelsList);
+                                                  setState(() {
+                                                    // val = index;
+                                                    // showItem = labelsList[index];
+                                                    labelClicked = true;
+                                                    folderClicked = false;
+                                                    currentlyShowing =
+                                                        labels[item[0]] as int;
+                                                    print("CLICKED");
+                                                    Navigator.of(context).pop();
+                                                  });
+                                                },
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 30),
+                                                  child: Container(
+                                                    padding: EdgeInsets.all(5),
+                                                    child: Row(
+                                                      children: [
+                                                        Image(
+                                                          image: AssetImage(
+                                                              'assets/images/label_image_2.png'),
+                                                          height: 20,
+                                                          width: 20,
+                                                          color: Colors.blue,
+                                                        ),
+                                                        SizedBox(
+                                                          width: 10,
+                                                        ),
+                                                        Text(item[0])
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ));
+                                        }).toList(),
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      return GestureDetector(
+                        onTap: () {
+                          print("In draweer");
+                          // print(labelsList[index]);
+                          print(index);
+                          // print(labelsList);
+                          setState(() {
+                            // val = index;
+                            // showItem = labelsList[index];
+                            // currentlyShowing = labels[item[0]] as int;
+                            print("CLICKED");
+                            Navigator.of(context).pop();
+                          });
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(7),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Image(
+                                image: AssetImage("assets/images/Folder.png"),
+                                height: 20,
+                                width: 20,
+                                // color: Colors.blue,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                folder[index],
+                                style: TextStyle(fontSize: 16),
+                              )
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+              Spacer(),
+              Container(
+                child: GestureDetector(
+                  onTap: () {
+                    // folders[""]
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          "Add List",
+                          style: TextStyle(fontSize: 16),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            ],
           ),
         ),
         body: Stack(children: [
@@ -300,7 +438,14 @@ class _HomePageState extends State<HomePage> {
                   child: ListView.builder(
                       itemCount: habitsList.length,
                       itemBuilder: (context, index) {
-                        if (habitsList[index][2].contains(currentlyShowing)) {
+                        // TODO ---------------------------------------------
+                        // TODO ---------------------------------------------
+                        if ((labelClicked &&
+                                habitsList[index][2]
+                                    .contains(currentlyShowing)) ||
+                            (folderClicked &&
+                                habitsList[index][3]
+                                    .contains(currentlyShowing))) {
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Slidable(
@@ -366,17 +511,7 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          // if (addItemState)
-          //   Positioned(
-          //     left: 0,
-          //     right: 0,
-          //     bottom: 0,
-          //     // top: 0,
-          //     child: Container(
-          //         color: Colors.grey,
-          //         // height: ,
-          //         // width: 50,
-          //         child: inputFieldForLabel()),
+
           //   ),
           if (addItemStateButton)
             Positioned(
@@ -391,17 +526,10 @@ class _HomePageState extends State<HomePage> {
                     decoration: BoxDecoration(
                       color: Colors.green,
                       shape: BoxShape.circle, // Make it circular
-                      // border: Border.all(
-                      //   color: Colors.blue, // Border color
-                      //   width: 2.0, // Border width
-                      // ),
                     ),
                     child: InkWell(
                       // Handle button tap here
                       onTap: () {
-                        // Add your button's tap action here
-                        // addItemState = !addItemState;
-                        // _focusNode.unfocus();
                         _showBottomDialog(context);
                         setState(() {});
                       },
@@ -415,29 +543,7 @@ class _HomePageState extends State<HomePage> {
                           child: Icon(Icons.add)),
                     ),
                   ),
-                )
-                // GestureDetector(
-                //   onTap: () {
-                //   },
-                //   child: Container(
-                //     decoration: BoxDecoration(
-                //         color: Colors.green,
-                //         borderRadius: BorderRadius.circular(100)),
-                //     child: Card(
-                //       elevation: 3,
-                //       color: Color.fromARGB(0, 255, 255, 255),
-                //       child: Container(
-                //           height: 50,
-                //           width: 50,
-                //           child: Column(
-                //             crossAxisAlignment: CrossAxisAlignment.center,
-                //             mainAxisAlignment: MainAxisAlignment.center,
-                //             children: [Icon(Icons.add)],
-                //           )),
-                //     ),
-                //   ),
-                // ),
-                )
+                ))
         ]),
       ),
     );
@@ -474,60 +580,120 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Container(
                     child: Column(children: [
-                      if (showLabels)
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: SizedBox(
-                            // height: 80,
-                            child: Wrap(
-                              // direction: Axis.vertical,
-                              direction: Axis.horizontal,
+                      showFolders
+                          ? SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: SizedBox(
+                                // height: 80,
+                                child: Wrap(
+                                  // direction: Axis.vertical,
+                                  direction: Axis.horizontal,
 
-                              alignment: WrapAlignment.start,
-                              spacing: 8.0, // Adjust the spacing between items
-                              runSpacing:
-                                  8.0, // Adjust the spacing between rows
-                              children: List.generate(
-                                labelsState
-                                    .length, // Replace with the number of items you want to display
-                                (index) {
-                                  return GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        labelsState[index] =
-                                            1 - labelsState[index];
-                                      });
+                                  alignment: WrapAlignment.start,
+                                  spacing:
+                                      8.0, // Adjust the spacing between items
+                                  runSpacing:
+                                      8.0, // Adjust the spacing between rows
+                                  children: List.generate(
+                                    foldersState
+                                        .length, // Replace with the number of items you want to display
+                                    (index) {
+                                      return GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            foldersState[index] =
+                                                1 - foldersState[index];
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.all(5),
+                                          decoration: BoxDecoration(
+                                              color: foldersState[index] == 0
+                                                  ? myColorsOpa[index]
+                                                  : Colors.grey
+                                                      .withOpacity(0.5),
+                                              borderRadius:
+                                                  BorderRadius.circular(20)),
+                                          child: Row(
+                                            children: [
+                                              Image(
+                                                image: AssetImage(
+                                                    'assets/images/label_image_2.png'),
+                                                height: 20,
+                                                width: 20,
+                                                color: Colors.black,
+                                              ),
+                                              SizedBox(
+                                                width: 5,
+                                              ),
+                                              Text(folder[index][0])
+                                            ],
+                                          ),
+                                        ),
+                                      );
                                     },
-                                    child: Container(
-                                      padding: EdgeInsets.all(5),
-                                      decoration: BoxDecoration(
-                                          color: labelsState[index] == 0
-                                              ? myColorsOpa[index]
-                                              : Colors.grey.withOpacity(0.5),
-                                          borderRadius:
-                                              BorderRadius.circular(20)),
-                                      child: Row(
-                                        children: [
-                                          Image(
-                                            image: AssetImage(
-                                                'assets/images/label_image_2.png'),
-                                            height: 20,
-                                            width: 20,
-                                            color: Colors.black,
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Text(label[index][0])
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
+                            )
+                          : Container(),
+                      showLabels
+                          ? SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: SizedBox(
+                                // height: 80,
+                                child: Wrap(
+                                  // direction: Axis.vertical,
+                                  direction: Axis.horizontal,
+
+                                  alignment: WrapAlignment.start,
+                                  spacing:
+                                      8.0, // Adjust the spacing between items
+                                  runSpacing:
+                                      8.0, // Adjust the spacing between rows
+                                  children: List.generate(
+                                    labelsState
+                                        .length, // Replace with the number of items you want to display
+                                    (index) {
+                                      return GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            labelsState[index] =
+                                                1 - labelsState[index];
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.all(5),
+                                          decoration: BoxDecoration(
+                                              color: labelsState[index] == 0
+                                                  ? myColorsOpa[index]
+                                                  : Colors.grey
+                                                      .withOpacity(0.5),
+                                              borderRadius:
+                                                  BorderRadius.circular(20)),
+                                          child: Row(
+                                            children: [
+                                              Image(
+                                                image: AssetImage(
+                                                    'assets/images/label_image_2.png'),
+                                                height: 20,
+                                                width: 20,
+                                                color: Colors.black,
+                                              ),
+                                              SizedBox(
+                                                width: 5,
+                                              ),
+                                              Text(label[index][0])
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Container(),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextField(
@@ -553,6 +719,7 @@ class _HomePageState extends State<HomePage> {
                             child: GestureDetector(
                               onTap: () {
                                 setState(() {
+                                  showFolders = false;
                                   showLabels = !showLabels;
                                   //showInbox = false;
                                 });
@@ -566,11 +733,20 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Icon(
-                              Icons.folder,
-                              size: 30,
+                          GestureDetector(
+                            onTap: () {
+                              showLabels = false;
+                              showFolders = !showFolders;
+                              print("SHOW FOLDER CLICKED");
+                              setState(() {});
+                            },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: Icon(
+                                Icons.folder,
+                                size: 30,
+                              ),
                             ),
                           ),
                           Spacer(),
@@ -580,15 +756,21 @@ class _HomePageState extends State<HomePage> {
                                 itemInput.text,
                                 false,
                                 [1],
-                                []
+                                [2]
                               ]);
                               for (var i = 0; i < labelsState.length; i++) {
                                 if (labelsState[i] == 1) {
                                   habitsList.last[2].add(labels[label[i][0]]);
                                 }
                               }
+                              for (var i = 0; i < foldersState.length; i++) {
+                                if (foldersState[i] == 1) {
+                                  habitsList.last[3].add(folders[folder[i][0]]);
+                                }
+                              }
                               // labelsList[0][habitsList.length - 1] = 1;
                               _myBox.put("Labels", labels);
+                              _myBox.put("Folders", folders);
                               _myBox.put("HabitList", habitsList);
                               // _myBox.put("LabelsList", labelsList);
 
@@ -596,6 +778,8 @@ class _HomePageState extends State<HomePage> {
                                 // widget.updateParentCallBack
                                 labelsState =
                                     List<int>.filled(labelsState.length, 0);
+                                foldersState =
+                                    List<int>.filled(foldersState.length, 0);
                                 itemInput.clear();
                                 updateParentPage();
                               });

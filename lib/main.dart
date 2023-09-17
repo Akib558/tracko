@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tracko/edit_item.dart';
 import 'package:tracko/home_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -23,6 +24,7 @@ class _TrackoState extends State<Tracko> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: HomePage(),
+      // home: EditItem(itemIndex: 0),
       theme: ThemeData(
         primarySwatch: Colors.green,
         // useMaterial3: true,

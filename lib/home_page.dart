@@ -9,6 +9,8 @@ import 'package:tracko/add_item.dart';
 import 'package:tracko/all_colors.dart';
 import 'dart:math';
 
+import 'package:tracko/math_functions.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -19,6 +21,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   // TrackoDatabase db = TrackoDatabase();
   TextEditingController itemInput = TextEditingController();
+  TextEditingController addFolderController = TextEditingController();
+
   // String itemInputButtonCharachter = "HELLO";
   final FocusNode _focusNode = FocusNode();
 
@@ -29,25 +33,29 @@ class _HomePageState extends State<HomePage> {
       "eat",
       false,
       [1],
-      []
+      [2],
+      ""
     ],
     [
       "sleep",
       false,
       [1],
-      []
+      [2],
+      "",
     ],
     [
       "walk",
       false,
       [1],
-      []
+      [2],
+      "",
     ],
     [
-      "read",
-      false,
-      [1],
-      []
+      "read", //0
+      false, //1
+      [1], //2
+      [2], //3
+      "", //4
     ],
   ];
 
@@ -168,26 +176,164 @@ class _HomePageState extends State<HomePage> {
     }).toList();
   }
 
-  int generateUniqueRandom(int min, int max) {
-    if (max <= min) {
-      throw Exception('Max must be greater than min.');
+  void subInit() {
+    if (_myBox.get("HabitList") == null) {
+      _myBox.put("HabitList", habitsList);
+    } else {
+      habitsList = _myBox.get("HabitList");
+    }
+    if (_myBox.get("Labels") == null) {
+      _myBox.put("Labels", labels);
+    } else {
+      labels = Map<String, int>.from(_myBox.get("Labels"));
     }
 
-    Set<int> usedNumbers = Set<int>();
-    Random random = Random();
-    int range = max - min + 1;
-
-    if (usedNumbers.length == range) {
-      throw Exception('All possible numbers have been generated.');
+    if (_myBox.get("Folders") == null) {
+      _myBox.put("Folders", folders);
+    } else {
+      folders = Map<String, int>.from(_myBox.get("Folders"));
     }
+    List<String> pp = labels.keys.toList();
+    List<int> pp2 = labels.values.toList();
+    label = List<List<dynamic>>.generate(
+        pp.length, (index) => [pp[index], pp2[index]]);
 
-    int randomNumber;
-    do {
-      randomNumber = random.nextInt(range) + min;
-    } while (usedNumbers.contains(randomNumber));
+    // folder = folders.keys.toList();
 
-    usedNumbers.add(randomNumber);
-    return randomNumber;
+    pp = folders.keys.toList();
+    pp2 = folders.values.toList();
+    folder = List<List<dynamic>>.generate(
+        pp.length, (index) => [pp[index], pp2[index]]);
+
+    labelsState = List<int>.filled(labels.length, 0);
+    foldersState = List<int>.filled(folders.length, 0);
+  }
+
+  void _showAlertDialog(BuildContext context) async {
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            scrollable: true,
+            // title: Text("THIS IS AN ALERT DIALOG"),
+            content: Container(
+              width: double.maxFinite,
+              height: 300, // Set a fixed height or adjust as needed
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: folders.length, // Replace with your item count
+                      itemBuilder: (BuildContext context, int index) {
+                        return ListTile(
+                          title: Text("${folder[index][0]}"),
+                          // Add more widgets or customize as needed
+                        );
+                      },
+                    ),
+                  ),
+                  TextField(
+                    controller: addFolderController,
+                    autofocus: true,
+                    onChanged: (value) {},
+                  )
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  addFolderController.clear();
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text('Close'),
+              ),
+              TextButton(
+                onPressed: () {
+                  folders[addFolderController.text] = generateUniqueRandom();
+                  _myBox.put("Folders", folders);
+                  subInit();
+                  setState(() {});
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text('Save'),
+              )
+            ],
+          );
+        });
+  }
+
+  void _showConfirmationForDeletion(
+      BuildContext context, String name, int itemVal, bool isFolder) async {
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          int pos = 2;
+          if (isFolder) pos = 3;
+          return AlertDialog(
+            scrollable: true,
+            title: Text("Delete this item ?"),
+            // content: Container(
+            //   width: double.maxFinite,
+            //   height: 300, // Set a fixed height or adjust as needed
+            //   child: Column(
+            //     children: [
+            //       Expanded(
+            //         child: ListView.builder(
+            //           itemCount: folders.length, // Replace with your item count
+            //           itemBuilder: (BuildContext context, int index) {
+            //             return ListTile(
+            //               title: Text("${folder[index][0]}"),
+            //               // Add more widgets or customize as needed
+            //             );
+            //           },
+            //         ),
+            //       ),
+            //       TextField(
+            //         controller: addFolderController,
+            //         autofocus: true,
+            //         onChanged: (value) {},
+            //       )
+            //     ],
+            //   ),
+            // ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  // addFolderController.clear();
+                  // if (isFolder) {
+                  //   folders.remove(name);
+                  //   for (var i = 0; i < habitsList.length; i++) {
+                  //     habitsList[i][3]
+                  //         .removeWhere((element) => element == itemVal);
+                  //   }
+                  //   _myBox.put("Folders", folders);
+                  // } else {
+                  //   labels.remove(name);
+                  //   for (var i = 0; i < habitsList.length; i++) {
+                  //     habitsList[i][2]
+                  //         .removeWhere((element) => element == itemVal);
+                  //   }
+                  //   _myBox.put("Labels", labels);
+                  // }
+                  // _myBox.put("HabitList", habitsList);
+                  // subInit();
+
+                  print("${name} => ${itemVal}");
+
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text('Yes'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text('No'),
+              )
+            ],
+          );
+        });
   }
 
   // bool pp = true;
@@ -201,6 +347,7 @@ class _HomePageState extends State<HomePage> {
         ),
         drawer: Drawer(
           // width: 200,
+          key: UniqueKey(),
           child: Column(
             children: [
               Flexible(
@@ -220,7 +367,11 @@ class _HomePageState extends State<HomePage> {
                             // currentlyShowing = labels[item[0]] as int;
                             folderClicked = true;
                             labelClicked = false;
-                            currentlyShowing = folders[folder[index][0]] as int;
+
+                            print(folder[index][1]);
+
+                            currentlyShowing = folder[index][1];
+
                             print("CLICKED");
                             Navigator.of(context).pop();
                           });
@@ -312,6 +463,14 @@ class _HomePageState extends State<HomePage> {
                                           return Container(
                                               padding: EdgeInsets.all(2),
                                               child: GestureDetector(
+                                                onLongPress: () {
+                                                  _showConfirmationForDeletion(
+                                                      context,
+                                                      item[0],
+                                                      item[1],
+                                                      false);
+                                                  setState(() {});
+                                                },
                                                 onTap: () {
                                                   print("In draweer");
                                                   // print(labelsList[index]);
@@ -362,6 +521,12 @@ class _HomePageState extends State<HomePage> {
                       );
                     } else {
                       return GestureDetector(
+                        onLongPress: () {
+                          _showConfirmationForDeletion(context,
+                              folder[index][0], folder[index][1], true);
+                          // setState(() {});
+                          setState(() {});
+                        },
                         onTap: () {
                           print("In draweer");
                           // print(labelsList[index]);
@@ -371,6 +536,13 @@ class _HomePageState extends State<HomePage> {
                             // val = index;
                             // showItem = labelsList[index];
                             // currentlyShowing = labels[item[0]] as int;
+                            folderClicked = true;
+                            labelClicked = false;
+
+                            print(folder[index][1]);
+
+                            currentlyShowing = folder[index][1];
+
                             print("CLICKED");
                             Navigator.of(context).pop();
                           });
@@ -392,7 +564,7 @@ class _HomePageState extends State<HomePage> {
                                 width: 10,
                               ),
                               Text(
-                                folder[index],
+                                folder[index][0],
                                 style: TextStyle(fontSize: 16),
                               )
                             ],
@@ -408,6 +580,7 @@ class _HomePageState extends State<HomePage> {
                 child: GestureDetector(
                   onTap: () {
                     // folders[""]
+                    _showAlertDialog(context);
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -454,7 +627,17 @@ class _HomePageState extends State<HomePage> {
                                 children: [
                                   // settings option
                                   SlidableAction(
-                                    onPressed: (value) {},
+                                    onPressed: (value) {
+                                      Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      EditItem(
+                                                          itemIndex: index)))
+                                          .then((value) => setState(() {
+                                                subInit();
+                                              }));
+                                    },
                                     backgroundColor: Colors.grey.shade800,
                                     icon: Icons.settings,
                                     borderRadius: BorderRadius.circular(12),
@@ -756,7 +939,8 @@ class _HomePageState extends State<HomePage> {
                                 itemInput.text,
                                 false,
                                 [1],
-                                [2]
+                                [2],
+                                [""]
                               ]);
                               for (var i = 0; i < labelsState.length; i++) {
                                 if (labelsState[i] == 1) {

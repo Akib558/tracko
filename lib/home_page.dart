@@ -34,7 +34,14 @@ class _HomePageState extends State<HomePage> {
       false,
       [1],
       [2],
-      ""
+      "",
+      [
+        false,
+        0,
+        0,
+        DateTime,
+        DateTime,
+      ]
     ],
     [
       "sleep",
@@ -42,6 +49,13 @@ class _HomePageState extends State<HomePage> {
       [1],
       [2],
       "",
+      [
+        false,
+        0,
+        0,
+        DateTime,
+        DateTime,
+      ]
     ],
     [
       "walk",
@@ -49,6 +63,13 @@ class _HomePageState extends State<HomePage> {
       [1],
       [2],
       "",
+      [
+        false,
+        0,
+        0,
+        DateTime,
+        DateTime,
+      ]
     ],
     [
       "read", //0
@@ -56,6 +77,13 @@ class _HomePageState extends State<HomePage> {
       [1], //2
       [2], //3
       "", //4
+      [
+        false,
+        0,
+        0,
+        DateTime,
+        DateTime,
+      ] //5
     ],
   ];
 
@@ -301,25 +329,26 @@ class _HomePageState extends State<HomePage> {
               TextButton(
                 onPressed: () {
                   // addFolderController.clear();
-                  // if (isFolder) {
-                  //   folders.remove(name);
-                  //   for (var i = 0; i < habitsList.length; i++) {
-                  //     habitsList[i][3]
-                  //         .removeWhere((element) => element == itemVal);
-                  //   }
-                  //   _myBox.put("Folders", folders);
-                  // } else {
-                  //   labels.remove(name);
-                  //   for (var i = 0; i < habitsList.length; i++) {
-                  //     habitsList[i][2]
-                  //         .removeWhere((element) => element == itemVal);
-                  //   }
-                  //   _myBox.put("Labels", labels);
-                  // }
-                  // _myBox.put("HabitList", habitsList);
-                  // subInit();
+                  if (isFolder) {
+                    folders.remove(name);
+                    for (var i = 0; i < habitsList.length; i++) {
+                      habitsList[i][3]
+                          .removeWhere((element) => element == itemVal);
+                    }
+                    _myBox.put("Folders", folders);
+                  } else {
+                    labels.remove(name);
+                    for (var i = 0; i < habitsList.length; i++) {
+                      habitsList[i][2]
+                          .removeWhere((element) => element == itemVal);
+                    }
+                    _myBox.put("Labels", labels);
+                  }
+                  _myBox.put("HabitList", habitsList);
+                  subInit();
 
                   print("${name} => ${itemVal}");
+                  setState(() {});
 
                   Navigator.of(context).pop(); // Close the dialog
                 },
@@ -347,67 +376,70 @@ class _HomePageState extends State<HomePage> {
         ),
         drawer: Drawer(
           // width: 200,
-          key: UniqueKey(),
-          child: Column(
-            children: [
-              Flexible(
-                child: ListView.builder(
-                  itemCount: folders.length,
-                  itemBuilder: (context, index) {
-                    if (index < 2) {
-                      return GestureDetector(
-                        onTap: () {
-                          print("In draweer");
-                          // print(labelsList[index]);
-                          print(index);
-                          // print(labelsList);
-                          setState(() {
-                            // val = index;
-                            // showItem = labelsList[index];
-                            // currentlyShowing = labels[item[0]] as int;
-                            folderClicked = true;
-                            labelClicked = false;
+          // key: UniqueKey(),
+          child: Stack(children: [
+            Column(
+              children: [
+                Flexible(
+                  child: ListView.builder(
+                    itemCount: folders.length,
+                    itemBuilder: (context, index) {
+                      if (index < 2) {
+                        return GestureDetector(
+                          onTap: () {
+                            print("In draweer");
+                            // print(labelsList[index]);
+                            print(index);
+                            // print(labelsList);
+                            setState(() {
+                              // val = index;
+                              // showItem = labelsList[index];
+                              // currentlyShowing = labels[item[0]] as int;
+                              folderClicked = true;
+                              labelClicked = false;
 
-                            print(folder[index][1]);
+                              print(folder[index][1]);
 
-                            currentlyShowing = folder[index][1];
+                              currentlyShowing = folder[index][1];
 
-                            print("CLICKED");
-                            Navigator.of(context).pop();
-                          });
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(7),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Image(
-                                image: AssetImage(
-                                    "assets/images/${folder[index][0]}.png"),
-                                height: 20,
-                                width: 20,
-                                // color: Colors.blue,
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                folder[index][0],
-                                style: TextStyle(fontSize: 16),
-                              )
-                            ],
+                              print("CLICKED");
+                              Navigator.of(context).pop();
+                            });
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(7),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Image(
+                                  image: AssetImage(
+                                      "assets/images/${folder[index][0]}.png"),
+                                  height: 20,
+                                  width: 20,
+                                  // color: Colors.blue,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                  folder[index][0],
+                                  style: TextStyle(fontSize: 16),
+                                )
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    } else if (index == 2) {
-                      // String selectedItem = label[0][0];
-                      return Expanded(
-                        child: Column(
+                        );
+                      } else if (index == 2) {
+                        // String selectedItem = label[0][0];
+                        return Column(
                           children: [
-                            InkWell(
-                              onTap: toggleExpansion,
+                            GestureDetector(
+                              onTap: () {
+                                isExpanded = !isExpanded;
+                                setState(() {});
+                              },
                               child: Container(
                                 color: isExpanded ? Colors.grey[300] : null,
                                 padding: EdgeInsets.all(2.0),
@@ -448,135 +480,134 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                             ),
-                            AnimatedContainer(
-                              duration: Duration(milliseconds: 100),
-                              height: isExpanded
-                                  ? MediaQuery.of(context)
-                                      .size
-                                      .height // Expand to full height
-                                  : 0.0,
-                              child: Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: isExpanded
-                                    ? Column(
-                                        children: label.map((item) {
-                                          return Container(
-                                              padding: EdgeInsets.all(2),
-                                              child: GestureDetector(
-                                                onLongPress: () {
-                                                  _showConfirmationForDeletion(
-                                                      context,
-                                                      item[0],
-                                                      item[1],
-                                                      false);
-                                                  setState(() {});
-                                                },
-                                                onTap: () {
-                                                  print("In draweer");
-                                                  // print(labelsList[index]);
-                                                  print(index);
-                                                  // print(labelsList);
-                                                  setState(() {
-                                                    // val = index;
-                                                    // showItem = labelsList[index];
-                                                    labelClicked = true;
-                                                    folderClicked = false;
-                                                    currentlyShowing =
-                                                        labels[item[0]] as int;
-                                                    print("CLICKED");
-                                                    Navigator.of(context).pop();
-                                                  });
-                                                },
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 30),
-                                                  child: Container(
-                                                    padding: EdgeInsets.all(5),
-                                                    child: Row(
-                                                      children: [
-                                                        Image(
-                                                          image: AssetImage(
-                                                              'assets/images/label_image_2.png'),
-                                                          height: 20,
-                                                          width: 20,
-                                                          color: Colors.blue,
-                                                        ),
-                                                        SizedBox(
-                                                          width: 10,
-                                                        ),
-                                                        Text(item[0])
-                                                      ],
+                            isExpanded
+                                ? Column(
+                                    children: label.map((item) {
+                                      return Container(
+                                          padding: EdgeInsets.all(2),
+                                          child: GestureDetector(
+                                            onLongPress: () {
+                                              _showConfirmationForDeletion(
+                                                  context,
+                                                  item[0],
+                                                  item[1],
+                                                  false);
+                                              setState(() {});
+                                            },
+                                            onTap: () {
+                                              print("In draweer");
+                                              // print(labelsList[index]);
+                                              print(index);
+                                              // print(labelsList);
+                                              setState(() {
+                                                // val = index;
+                                                // showItem = labelsList[index];
+                                                labelClicked = true;
+                                                folderClicked = false;
+                                                currentlyShowing =
+                                                    labels[item[0]] as int;
+                                                print("CLICKED");
+                                                Navigator.of(context).pop();
+                                              });
+                                            },
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 30),
+                                              child: Container(
+                                                padding: EdgeInsets.all(5),
+                                                child: Row(
+                                                  children: [
+                                                    Image(
+                                                      image: AssetImage(
+                                                          'assets/images/label_image_2.png'),
+                                                      height: 20,
+                                                      width: 20,
+                                                      color: Colors.blue,
                                                     ),
-                                                  ),
+                                                    SizedBox(
+                                                      width: 10,
+                                                    ),
+                                                    SizedBox(
+                                                        width: 180,
+                                                        // width: double.maxFinite,
+
+                                                        // color:
+                                                        child: Text(item[0]))
+                                                  ],
                                                 ),
-                                              ));
-                                        }).toList(),
-                                      )
-                                    : null,
-                              ),
-                            ),
+                                              ),
+                                            ),
+                                          ));
+                                    }).toList(),
+                                  )
+                                : Container()
                           ],
-                        ),
-                      );
-                    } else {
-                      return GestureDetector(
-                        onLongPress: () {
-                          _showConfirmationForDeletion(context,
-                              folder[index][0], folder[index][1], true);
-                          // setState(() {});
-                          setState(() {});
-                        },
-                        onTap: () {
-                          print("In draweer");
-                          // print(labelsList[index]);
-                          print(index);
-                          // print(labelsList);
-                          setState(() {
-                            // val = index;
-                            // showItem = labelsList[index];
-                            // currentlyShowing = labels[item[0]] as int;
-                            folderClicked = true;
-                            labelClicked = false;
+                        );
+                      } else {
+                        return GestureDetector(
+                          onLongPress: () {
+                            _showConfirmationForDeletion(context,
+                                folder[index][0], folder[index][1], true);
+                            // setState(() {});
+                            setState(() {});
+                          },
+                          onTap: () {
+                            print("In draweer");
+                            // print(labelsList[index]);
+                            print(index);
+                            // print(labelsList);
+                            setState(() {
+                              // val = index;
+                              // showItem = labelsList[index];
+                              // currentlyShowing = labels[item[0]] as int;
+                              folderClicked = true;
+                              labelClicked = false;
 
-                            print(folder[index][1]);
+                              print(folder[index][1]);
 
-                            currentlyShowing = folder[index][1];
+                              currentlyShowing = folder[index][1];
 
-                            print("CLICKED");
-                            Navigator.of(context).pop();
-                          });
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(7),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Image(
-                                image: AssetImage("assets/images/Folder.png"),
-                                height: 20,
-                                width: 20,
-                                // color: Colors.blue,
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                folder[index][0],
-                                style: TextStyle(fontSize: 16),
-                              )
-                            ],
+                              print("CLICKED");
+                              Navigator.of(context).pop();
+                            });
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(7),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Image(
+                                  image: AssetImage("assets/images/Folder.png"),
+                                  height: 20,
+                                  width: 20,
+                                  // color: Colors.blue,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                SizedBox(
+                                  // width: 60,
+                                  child: Text(
+                                    folder[index][0],
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    }
-                  },
+                        );
+                      }
+                    },
+                  ),
                 ),
-              ),
-              Spacer(),
-              Container(
+                // Spacer(),
+              ],
+            ),
+            Positioned(
+              bottom: 0,
+              child: Container(
                 child: GestureDetector(
                   onTap: () {
                     // folders[""]
@@ -597,9 +628,9 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-              )
-            ],
-          ),
+              ),
+            )
+          ]),
         ),
         body: Stack(children: [
           Container(

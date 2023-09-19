@@ -50,6 +50,8 @@ class _EditItemState extends State<EditItem> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    print("inside editItem");
+    print(_myBox.get("HabitList"));
     if (_myBox.get("HabitList") == null) {
       _myBox.put("HabitList", habitsList);
     } else {

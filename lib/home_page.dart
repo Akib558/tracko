@@ -7,10 +7,12 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tracko/edit_item.dart';
 import 'package:tracko/add_item.dart';
 import 'package:tracko/all_colors.dart';
+import 'package:tracko/focus_page.dart';
 import 'dart:math';
 // import 'package:tracko/math_functions.dart';
 import 'package:tracko/math_functions.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -138,6 +140,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
     // print(jsonEncode(labels));
     // _myBox.delete("HabitList");
     // _myBox.delete("LabelsList");
@@ -207,6 +210,14 @@ class _HomePageState extends State<HomePage> {
     // print(loadHeatMap(historyList));
     List demo = historyList["start_date"] as List;
     startDate = demo[0] as String;
+    // if (_myBox.get("focus") == 1) {
+    //   Navigator.pushReplacement(
+    //     context,
+    //     MaterialPageRoute(
+    //       builder: (BuildContext context) => FocusItemListPage(),
+    //     ),
+    //   );
+    // }
   }
 
   @override
@@ -357,7 +368,7 @@ class _HomePageState extends State<HomePage> {
             ],
           );
         });
-    print(_myBox.get("HistoryList"));
+    // print(_myBox.get("HistoryList"));
   }
 
   void _showConfirmationForDeletion(
@@ -436,6 +447,8 @@ class _HomePageState extends State<HomePage> {
     print(_myBox.get("HistoryList"));
   }
 
+  String folderName = "Inbox";
+  bool showHeatMap = false;
   // bool pp = true;
   @override
   Widget build(BuildContext context) {
@@ -443,7 +456,37 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Tracko"),
+          title: Text(folderName),
+          actions: [
+            GestureDetector(
+              onTap: () {
+                // showHeatMap = !showHeatMap;
+                _myBox.put("focus", 1);
+                // return FocusItemListPage();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => FocusItemListPage(),
+                  ),
+                );
+                // setState(() {});
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Icon(Icons.center_focus_strong),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                showHeatMap = !showHeatMap;
+                setState(() {});
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Icon(Icons.show_chart_rounded),
+              ),
+            )
+          ],
         ),
         drawer: Drawer(
           // width: 200,
@@ -577,6 +620,8 @@ class _HomePageState extends State<HomePage> {
                                                 folderClicked = false;
                                                 currentlyShowing =
                                                     labels[item[0]] as int;
+
+                                                folderName = item[0];
                                                 //print("CLICKED");
                                                 Navigator.of(context).pop();
                                               });
@@ -637,6 +682,7 @@ class _HomePageState extends State<HomePage> {
                               //print(folder[index][1]);
 
                               currentlyShowing = folder[index][1];
+                              folderName = folder[index][0];
 
                               //print("CLICKED");
                               Navigator.of(context).pop();
@@ -709,6 +755,45 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                showHeatMap
+                    ? Container(
+                        padding: EdgeInsets.all(20),
+                        margin: EdgeInsets.all(9),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(10)),
+                        // padding: const EdgeInsets.only(top: 25, bottom: 25),
+                        child: HeatMap(
+                          startDate: createDateTimeObject(startDate),
+                          endDate: DateTime.now().add(Duration(days: 0)),
+                          datasets: loadHeatMap(historyList),
+                          colorMode: ColorMode.color,
+                          defaultColor: Colors.white,
+                          textColor: Colors.black,
+                          showColorTip: false,
+                          showText: true,
+                          scrollable: true,
+                          size: 20,
+                          colorsets: const {
+                            1: Color.fromARGB(20, 2, 179, 8),
+                            2: Color.fromARGB(40, 2, 179, 8),
+                            3: Color.fromARGB(60, 2, 179, 8),
+                            4: Color.fromARGB(80, 2, 179, 8),
+                            5: Color.fromARGB(100, 2, 179, 8),
+                            6: Color.fromARGB(120, 2, 179, 8),
+                            7: Color.fromARGB(150, 2, 179, 8),
+                            8: Color.fromARGB(180, 2, 179, 8),
+                            9: Color.fromARGB(220, 2, 179, 8),
+                            10: Color.fromARGB(255, 2, 179, 8),
+                          },
+                          onClick: (value) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(value.toString())));
+                          },
+                        ),
+                      )
+                    : Container(),
                 Expanded(
                   child: ListView.builder(
                       itemCount: habitsList.length,
@@ -796,38 +881,6 @@ class _HomePageState extends State<HomePage> {
                         // return Placeholder();
                       }),
                 ),
-                Container(
-                  // color: Colors.grey,
-                  padding: const EdgeInsets.only(top: 25, bottom: 25),
-                  child: HeatMap(
-                    startDate: createDateTimeObject(startDate),
-                    endDate: DateTime.now().add(Duration(days: 0)),
-                    datasets: loadHeatMap(historyList),
-                    colorMode: ColorMode.color,
-                    defaultColor: Colors.grey[400],
-                    textColor: Colors.black,
-                    showColorTip: false,
-                    showText: true,
-                    scrollable: true,
-                    size: 30,
-                    colorsets: const {
-                      1: Color.fromARGB(20, 2, 179, 8),
-                      2: Color.fromARGB(40, 2, 179, 8),
-                      3: Color.fromARGB(60, 2, 179, 8),
-                      4: Color.fromARGB(80, 2, 179, 8),
-                      5: Color.fromARGB(100, 2, 179, 8),
-                      6: Color.fromARGB(120, 2, 179, 8),
-                      7: Color.fromARGB(150, 2, 179, 8),
-                      8: Color.fromARGB(180, 2, 179, 8),
-                      9: Color.fromARGB(220, 2, 179, 8),
-                      10: Color.fromARGB(255, 2, 179, 8),
-                    },
-                    onClick: (value) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(value.toString())));
-                    },
-                  ),
-                )
               ],
             ),
           ),
@@ -1091,11 +1144,16 @@ class _HomePageState extends State<HomePage> {
                                   habitsList.last[2].add(labels[label[i][0]]);
                                 }
                               }
+
+                              // print("Currently Showing: "+"$currentlyShowing");
+                              // habitsList
                               for (var i = 0; i < foldersState.length; i++) {
                                 if (foldersState[i] == 1) {
                                   habitsList.last[3].add(folders[folder[i][0]]);
                                 }
                               }
+                              habitsList.last[3].add(currentlyShowing);
+
                               // labelsList[0][habitsList.length - 1] = 1;
                               _myBox.put("Labels", labels);
                               _myBox.put("Folders", folders);

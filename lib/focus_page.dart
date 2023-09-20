@@ -3,7 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:tracko/home_page.dart';
 import 'dart:async';
+import 'package:tracko/math_functions.dart';
 
 import 'package:tracko/all_colors.dart';
 
@@ -89,6 +91,10 @@ class _FocusItemListPageState extends State<FocusItemListPage> {
     "Focussd": 7
   };
 
+  Map<String, List> historyList = {
+    "demo": [],
+  };
+
   // List<String> labels = [
   //   "All",
   //   "Daily",
@@ -126,6 +132,7 @@ class _FocusItemListPageState extends State<FocusItemListPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
     // print(jsonEncode(labels));
     // _myBox.delete("HabitList");
     // _myBox.delete("LabelsList");
@@ -145,6 +152,25 @@ class _FocusItemListPageState extends State<FocusItemListPage> {
       _myBox.put("Folders", folders);
     } else {
       folders = Map<String, int>.from(_myBox.get("Folders"));
+    }
+    if (_myBox.get("HistoryList") == null) {
+      historyList[todaysDateFormatted()] = habitsList;
+      historyList["start_date"] = [todaysDateFormatted()];
+      print("initializing historyList");
+      _myBox.put("HistoryList", historyList);
+      print("ok: ");
+      print(_myBox.get("HistoryList"));
+    } else {
+      print("historyList inititalized");
+      historyList = Map<String, List>.from(_myBox.get("HistoryList"));
+      if (historyList[todaysDateFormatted()] == null) {
+        historyList[todaysDateFormatted()] = habitsList;
+        print(
+            "habit list retrieving from historyList is null so storing habitslist");
+      } else {
+        print("habitsList get from historyList");
+        habitsList = historyList[todaysDateFormatted()] as List;
+      }
     }
 
     if (prevStateStart) {
@@ -182,6 +208,14 @@ class _FocusItemListPageState extends State<FocusItemListPage> {
     // });
     _controller1 = FixedExtentScrollController();
     _controller2 = FixedExtentScrollController();
+    // if (_myBox.get("focus") == 0) {
+    //   Navigator.pushReplacement(
+    //     context,
+    //     MaterialPageRoute(
+    //       builder: (BuildContext context) => HomePage(),
+    //     ),
+    //   );
+    // }
   }
 
   bool playStatus = false;
@@ -418,6 +452,26 @@ class _FocusItemListPageState extends State<FocusItemListPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Focus"),
+        actions: [
+          GestureDetector(
+            onTap: () {
+              // showHeatMap = !showHeatMap;
+              _myBox.put("focus", 0);
+              // return FocusItemListPage();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (BuildContext context) => HomePage(),
+                ),
+              );
+              // setState(() {});
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Icon(Icons.center_focus_strong),
+            ),
+          ),
+        ],
       ),
       body: Container(
         child: ListView.builder(

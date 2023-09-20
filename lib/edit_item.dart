@@ -31,7 +31,9 @@ class _EditItemState extends State<EditItem> {
   late List habitsList = [];
   late Map<String, int> labels = {};
   late Map<String, int> folders = {};
-
+  late Map<String, List> historyList = {
+    "demo": [],
+  };
   late List<String> items;
   late String selectedItem;
   late int selectedItemIndex;
@@ -69,7 +71,27 @@ class _EditItemState extends State<EditItem> {
       folders = Map<String, int>.from(_myBox.get("Folders"));
     }
 
-    print(habitsList);
+    if (_myBox.get("HistoryList") == null) {
+      historyList[todaysDateFormatted()] = habitsList;
+      historyList["start_date"] = [todaysDateFormatted()];
+      print("initializing historyList");
+      _myBox.put("HistoryList", historyList);
+      print("ok: ");
+      print(_myBox.get("HistoryList"));
+    } else {
+      print("historyList inititalized");
+      historyList = Map<String, List>.from(_myBox.get("HistoryList"));
+      if (historyList[todaysDateFormatted()] == null) {
+        historyList[todaysDateFormatted()] = habitsList;
+        print(
+            "habit list retrieving from historyList is null so storing habitslist");
+      } else {
+        print("habitsList get from historyList");
+        habitsList = historyList[todaysDateFormatted()] as List;
+      }
+    }
+
+    // print(habitsList);
 
     List<String> pp = labels.keys.toList();
     List<int> pp2 = labels.values.toList();
@@ -120,6 +142,14 @@ class _EditItemState extends State<EditItem> {
     foldersState = List<int>.filled(folders.length, 0);
 
     itemIndex = widget.itemIndex;
+  }
+
+  void updateHabit() {
+    historyList[todaysDateFormatted()] = habitsList;
+    print(historyList);
+    // print(_myBox.get("HistoryList"));
+    _myBox.put("HabitList", habitsList);
+    _myBox.put("HistoryList", historyList);
   }
 
   @override
@@ -285,6 +315,7 @@ class _EditItemState extends State<EditItem> {
                           }
                         }
                         _myBox.put("HabitList", habitsList);
+                        updateHabit();
                         setState(() {});
                         subInit();
                       },
@@ -582,6 +613,8 @@ class _EditItemState extends State<EditItem> {
                         print(labels);
                         _myBox.put("Labels", labels);
                         _myBox.put("HabitList", habitsList);
+                        updateHabit();
+
                         setState(() {});
                       },
                       child: Container(

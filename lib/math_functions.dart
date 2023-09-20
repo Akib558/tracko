@@ -85,15 +85,19 @@ String convertDateTimeToString(DateTime dateTime) {
 
 String calculateHabitPercentages(List todaysHabitList) {
   int countCompleted = 0;
+  int lengthOfDaily = 0;
   for (int i = 0; i < todaysHabitList.length; i++) {
-    if (todaysHabitList[i][1] == true) {
+    if (todaysHabitList[i][1] == true && todaysHabitList[i][2].contains(2)) {
       countCompleted++;
+    }
+    if (todaysHabitList[i][2].contains(2)) {
+      lengthOfDaily++;
     }
   }
 
   String percent = todaysHabitList.isEmpty
       ? '0.0'
-      : (countCompleted / todaysHabitList.length).toStringAsFixed(1);
+      : (countCompleted / lengthOfDaily).toStringAsFixed(1);
 
   // key: "PERCENTAGE_SUMMARY_yyyymmdd"
   // value: string of 1dp number between 0.0-1.0 inclusive

@@ -94,10 +94,12 @@ String calculateHabitPercentages(List todaysHabitList) {
       lengthOfDaily++;
     }
   }
+  print("Todays habits List: ${todaysHabitList}");
 
-  String percent = todaysHabitList.isEmpty
-      ? '0.0'
-      : (countCompleted / lengthOfDaily).toStringAsFixed(1);
+  String percent = '0.0';
+  if (lengthOfDaily != 0) {
+    percent = (countCompleted / lengthOfDaily).toStringAsFixed(1);
+  }
 
   // key: "PERCENTAGE_SUMMARY_yyyymmdd"
   // value: string of 1dp number between 0.0-1.0 inclusive
@@ -120,10 +122,22 @@ Map<DateTime, int> loadHeatMap(Map<String, dynamic> historyList) {
       startDate.add(Duration(days: i)),
     );
 
-    double strengthAsPercent =
-        double.parse(calculateHabitPercentages(historyList[yyyymmdd])
-            // _myBox.get("PERCENTAGE_SUMMARY_$yyyymmdd") ?? "0.0",
-            );
+    // print("error is : ");
+    // print(yyyymmdd);
+    // print(historyList);
+    // print(historyList[yyyymmdd]);
+    double strengthAsPercent = 0.0;
+
+    if (historyList[yyyymmdd] != null) {
+      strengthAsPercent =
+          double.parse(calculateHabitPercentages(historyList[yyyymmdd])
+              // _myBox.get("PERCENTAGE_SUMMARY_$yyyymmdd") ?? "0.0",
+              );
+      print("find: " + yyyymmdd);
+    } else {
+      print("did not find: " + yyyymmdd);
+      print("start date: " + historyList["start_date"][0]);
+    }
 
     // split the datetime up like below so it doesn't worry about hours/mins/secs etc.
 

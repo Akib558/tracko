@@ -3,11 +3,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:provider/provider.dart';
 import 'package:tracko/home_page.dart';
 import 'dart:async';
 import 'package:tracko/math_functions.dart';
 
 import 'package:tracko/all_colors.dart';
+import 'package:tracko/provider/focus_provider.dart';
 
 class FocusItemListPage extends StatefulWidget {
   const FocusItemListPage({super.key});
@@ -128,6 +130,9 @@ class _FocusItemListPageState extends State<FocusItemListPage> {
   // List foldersList = [];
   bool prevStateStart = true;
 
+  late FocusProvider focusProvider;
+
+  // late final focusProvider;
   @override
   void initState() {
     // TODO: implement initState
@@ -216,10 +221,23 @@ class _FocusItemListPageState extends State<FocusItemListPage> {
     //     ),
     //   );
     // }
+
+    focusProvider = Provider.of<FocusProvider>(context, listen: false);
+
+    List<List> temp = [];
+    for (int i = 0; i < habitsList.length; i++) {
+      temp.add([
+        statusRatio(habitsList[i][5][1], habitsList[i][5][2]),
+        habitsList[i][5][1],
+        habitsList[i][5][2]
+      ]);
+    }
+    focusProvider.setHabitsListOnProviderClass(temp);
   }
 
   bool playStatus = false;
-
+  final List<Color> myColors = generateColorList(Colors.red, Colors.green, 101);
+  // print(myColors);
   // double returnPercentValue() {
   //   return min(counter / 30, 1.0);
   // }
@@ -278,16 +296,34 @@ class _FocusItemListPageState extends State<FocusItemListPage> {
           timer.cancel();
           return;
         }
-        setState(() {
-          updateParentPage();
-          var currentTime = DateTime.now();
-          habitsList[index][5][3] = DateTime.now();
-          habitsList[index][5][1] = elapsedTime +
-              (currentTime.second - startTime.second) +
-              60 * (currentTime.minute - startTime.minute) +
-              60 * 60 * (currentTime.hour - startTime.hour);
-          _myBox.put("HabitList", habitsList);
-        });
+        //   setState(() {
+        //     updateParentPage();
+        //     var currentTime = DateTime.now();
+        //     habitsList[index][5][3] = DateTime.now();
+        //     habitsList[index][5][1] = elapsedTime +
+        //         (currentTime.second - startTime.second) +
+        //         60 * (currentTime.minute - startTime.minute) +
+        //         60 * 60 * (currentTime.hour - startTime.hour);
+        //     _myBox.put("HabitList", habitsList);
+        //   });
+        // });
+
+        // setState(() {
+        // updateParentPage();
+        var currentTime = DateTime.now();
+        habitsList[index][5][3] = DateTime.now();
+        habitsList[index][5][1] = elapsedTime +
+            (currentTime.second - startTime.second) +
+            60 * (currentTime.minute - startTime.minute) +
+            60 * 60 * (currentTime.hour - startTime.hour);
+        _myBox.put("HabitList", habitsList);
+        focusProvider.updateCircularIndicatorValue(
+            index,
+            statusRatio(habitsList[index][5][1], habitsList[index][5][2]),
+            habitsList[index][5][1],
+            habitsList[index][5][2]);
+
+        // });
       });
     }
   }
@@ -339,9 +375,9 @@ class _FocusItemListPageState extends State<FocusItemListPage> {
     );
   }
 
-  void updateParentPage() {
-    setState(() {});
-  }
+  // void updateParentPage() {
+  //   setState(() {});
+  // }
 
   void _showFocusEditDialog(BuildContext context, int itemIndex) async {
     await showDialog(
@@ -428,7 +464,7 @@ class _FocusItemListPageState extends State<FocusItemListPage> {
                   habitsList[itemIndex][5][2] =
                       3600 * _controller1.selectedItem.toInt() +
                           60 * _controller2.selectedItem.toInt();
-                  updateParentPage();
+                  // updateParentPage();
                   _myBox.put("HabitList", habitsList);
                   Navigator.of(context).pop(); // Close the dialog
                 },
@@ -449,6 +485,8 @@ class _FocusItemListPageState extends State<FocusItemListPage> {
 
   @override
   Widget build(BuildContext context) {
+    // final focusProvider = Provider.of<FocusProvider>(context);
+    print("build");
     return Scaffold(
       appBar: AppBar(
         title: Text("Focus"),
@@ -477,78 +515,86 @@ class _FocusItemListPageState extends State<FocusItemListPage> {
         child: ListView.builder(
           itemCount: habitsList.length,
           itemBuilder: (context, index) {
-            String remain = formatDuration(habitsList[index][5][1]);
-            String goal = formatDuration(habitsList[index][5][2]);
-
-            return Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Container(
-                padding: EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                    color: Colors.grey[400],
-                    borderRadius: BorderRadius.circular(12)),
-                child: Row(
-                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      // color: Colors.red,
-                      height: 60,
-                      width: 60,
-                      child: Stack(children: [
-                        CircularPercentIndicator(
-                          radius: 30,
-                          lineWidth: 10,
-                          progressColor: myColors[(statusRatio(
-                                      habitsList[index][5][1],
-                                      habitsList[index][5][2]) *
-                                  10)
-                              .toInt()],
-                          percent: statusRatio(
-                              habitsList[index][5][1], habitsList[index][5][2]),
-                        ),
-                        Center(
-                          child: GestureDetector(
-                            onTap: () {
-                              // habitsList[index][5][0] =
-                              //     !habitsList[index][5][0];
-                              // setState(() {});
-                              habitStarted(index, true);
-                              setState(() {});
-                            },
-                            child: Icon(
-                              !habitsList[index][5][0]
-                                  ? Icons.play_arrow
-                                  : Icons.pause,
-                              size: 30,
+            // String remain = formatDuration(habitsList[index][5][1]);
+            // String goal = formatDuration(habitsList[index][5][2]);
+            if (habitsList[index][2].contains(4)) {
+              return Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Container(
+                  padding: EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                      color: Colors.grey[400],
+                      borderRadius: BorderRadius.circular(12)),
+                  child: Row(
+                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        // color: Colors.red,
+                        height: 60,
+                        width: 60,
+                        child: Stack(children: [
+                          Consumer<FocusProvider>(
+                              builder: (context, value, child) {
+                            return CircularPercentIndicator(
+                                radius: 30,
+                                lineWidth: 10,
+                                progressColor: myColors[(statusRatio(
+                                            habitsList[index][5][1],
+                                            habitsList[index][5][2]) *
+                                        100)
+                                    .toInt()],
+                                // percent: statusRatio(habitsList[index][5][1],
+                                // habitsList[index][5][2]),
+                                percent: focusProvider.habitsList[index][0]);
+                          }),
+                          Center(
+                            child: GestureDetector(
+                              onTap: () {
+                                // habitsList[index][5][0] =
+                                //     !habitsList[index][5][0];
+                                // setState(() {});
+                                habitStarted(index, true);
+                                setState(() {});
+                              },
+                              child: Icon(
+                                !habitsList[index][5][0]
+                                    ? Icons.play_arrow
+                                    : Icons.pause,
+                                size: 30,
+                              ),
                             ),
                           ),
-                        ),
-                      ]),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          habitsList[index][0],
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        Text("${remain}/${goal}=${ratioValue(index)}%")
-                      ],
-                    ),
-                    Spacer(),
-                    GestureDetector(
-                        onTap: () {
-                          _showFocusEditDialog(context, index);
-                        },
-                        child: Icon(Icons.settings))
-                  ],
+                        ]),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Consumer<FocusProvider>(builder: (context, value, child) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              habitsList[index][0],
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            Text(
+                                "${formatDuration(focusProvider.habitsList[index][1])}/${formatDuration(focusProvider.habitsList[index][2])}=${ratioValue(index)}%")
+                          ],
+                        );
+                      }),
+                      Spacer(),
+                      GestureDetector(
+                          onTap: () {
+                            _showFocusEditDialog(context, index);
+                          },
+                          child: Icon(Icons.settings))
+                    ],
+                  ),
                 ),
-              ),
-            );
+              );
+            }
+            return Container();
           },
         ),
       ),

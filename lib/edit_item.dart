@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tracko/database.dart';
+// import 'package:tracko/database.dart';
 import 'package:tracko/all_colors.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tracko/math_functions.dart';
@@ -163,7 +163,7 @@ class _EditItemState extends State<EditItem> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add New Item"),
+        title: Text("Edit Item"),
       ),
       body: Container(
         padding: EdgeInsets.all(10),
@@ -412,6 +412,10 @@ class _EditItemState extends State<EditItem> {
                                   // width: double.infinity,
                                   child: inputFieldForLabel()),
                             ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(Icons.repeat),
+                      ),
                     ],
                   ),
                 ],
@@ -444,7 +448,7 @@ class _EditItemState extends State<EditItem> {
         // focusNode: _focusNode,
         cursorColor: Colors.black,
         decoration: InputDecoration(
-          hintText: 'Search...',
+          hintText: 'Label name ...',
           // contentPadding: EdgeInsets.symmetric(vertical: 4, horizontal: 10),
           // border: OutlineInputBorder(
           //     borderRadius: BorderRadius.circular(20),
@@ -461,24 +465,6 @@ class _EditItemState extends State<EditItem> {
   void updateParentPage() {
     // initState();
     setState(() {});
-  }
-
-  void _showAlertDialog(BuildContext context) async {
-    await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("THIS IS AN ALERT DIALOG"),
-            actions: [
-              Text("HELLO"),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text("Close"))
-            ],
-          );
-        });
   }
 
   void _showBottomDialog(BuildContext context) async {

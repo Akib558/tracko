@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1090374027323",
+    "project_id": "tracko-e4a9a",
+    "storage_bucket": "tracko-e4a9a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1090374027323:android:26d288fbe574b3be96741e",
+        "android_client_info": {
+          "package_name": "com.example.tracko"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA66qwF17_5gL3NxrqX0at4ySmtD95ZMR8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

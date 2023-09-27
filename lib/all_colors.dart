@@ -42,3 +42,19 @@ final List<Color> myColorsOpa = [
   Colors.grey.withOpacity(0.5),
   Colors.blueGrey.withOpacity(0.5),
 ];
+
+List<Color> generateColorList(Color startColor, Color endColor, int steps) {
+  final double stepR = (endColor.red - startColor.red) / (steps - 1);
+  final double stepG = (endColor.green - startColor.green) / (steps - 1);
+  final double stepB = (endColor.blue - startColor.blue) / (steps - 1);
+
+  List<Color> colorList = [];
+  for (int i = 0; i < steps; i++) {
+    int red = (startColor.red + stepR * i).round();
+    int green = (startColor.green + stepG * i).round();
+    int blue = (startColor.blue + stepB * i).round();
+    colorList.add(Color.fromRGBO(red, green, blue, 1));
+  }
+
+  return colorList;
+}

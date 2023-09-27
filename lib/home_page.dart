@@ -1,18 +1,20 @@
-import 'dart:convert';
+// import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:tracko/database.dart';
+// import 'package:tracko/database.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tracko/edit_item.dart';
-import 'package:tracko/add_item.dart';
+// import 'package:tracko/add_item.dart';
 import 'package:tracko/all_colors.dart';
 import 'package:tracko/focus_page.dart';
-import 'dart:math';
+// import 'dart:math';
 // import 'package:tracko/math_functions.dart';
 import 'package:tracko/math_functions.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+// import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:tracko/pages/auth_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -88,6 +90,20 @@ class _HomePageState extends State<HomePage> {
         null,
       ] //5
     ],
+    [
+      "play", //0
+      false, //1
+      [1], //2
+      [2], //3
+      "", //4
+      [
+        false,
+        0,
+        0,
+        null,
+        null,
+      ] //5
+    ],
   ];
 
   Map<String, int> labels = {
@@ -129,7 +145,7 @@ class _HomePageState extends State<HomePage> {
   late List<int> foldersState;
 
   Map<String, List> historyList = {
-    "demo": [],
+    // "demo": [],
   };
 
   // List labelsList = [];
@@ -146,7 +162,7 @@ class _HomePageState extends State<HomePage> {
     // _myBox.delete("LabelsList");
     // _myBox.delete("Labels");
     // _myBox.delete("HistoryList");
-    print(_myBox.get("HistoryList"));
+    // print(_myBox.get("HistoryList"));
 
     if (_myBox.get("HabitList") == null) {
       _myBox.put("HabitList", habitsList);
@@ -170,27 +186,30 @@ class _HomePageState extends State<HomePage> {
       historyList["start_date"] = [todaysDateFormatted()];
       print("initializing historyList");
       _myBox.put("HistoryList", historyList);
-      print("ok: ");
-      print(_myBox.get("HistoryList"));
+      // print("ok: ");
+      // print(_myBox.get("HistoryList"));
     } else {
       print("historyList inititalized");
       historyList = Map<String, List>.from(_myBox.get("HistoryList"));
       if (historyList[todaysDateFormatted()] == null) {
+        for (int i = 0; i < habitsList.length; i++) {
+          habitsList[i][1] = false;
+        }
         historyList[todaysDateFormatted()] = habitsList;
-        print(
-            "habit list retrieving from historyList is null so storing habitslist");
+        // print(
+        // "habit list retrieving from historyList is null so storing habitslist");
       } else {
-        print("habitsList get from historyList");
+        // print("habitsList get from historyList");
         habitsList = historyList[todaysDateFormatted()] as List;
       }
     }
 
-    print("historyList: " + "$historyList");
+    // print("historyList: " + "$historyList");
 
     val = 0;
 
-    print(habitsList);
-    print(labels);
+    // print(habitsList);
+    // print(labels);
 
     List<String> pp = labels.keys.toList();
     List<int> pp2 = labels.values.toList();
@@ -220,12 +239,12 @@ class _HomePageState extends State<HomePage> {
     // }
   }
 
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    super.dispose();
-    itemInput.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _focusNode.dispose();
+  //   super.dispose();
+  //   itemInput.dispose();
+  // }
 
   bool addItemStateButton = true;
   bool showLabels = false;
@@ -289,6 +308,9 @@ class _HomePageState extends State<HomePage> {
       print("historyList inititalized inside subInit");
       historyList = Map<String, List>.from(_myBox.get("HistoryList"));
       if (historyList[todaysDateFormatted()] == null) {
+        for (int i = 0; i < habitsList.length; i++) {
+          habitsList[i][1] = false;
+        }
         historyList[todaysDateFormatted()] = habitsList;
         print(
             "habit list retrieving from historyList is null so storing habitslist inside subInit");
@@ -368,7 +390,7 @@ class _HomePageState extends State<HomePage> {
             ],
           );
         });
-    // print(_myBox.get("HistoryList"));
+    // //print(_myBox.get("HistoryList"));
   }
 
   void _showConfirmationForDeletion(
@@ -376,8 +398,8 @@ class _HomePageState extends State<HomePage> {
     await showDialog(
         context: context,
         builder: (BuildContext context) {
-          int pos = 2;
-          if (isFolder) pos = 3;
+          // int pos = 2;
+          // if (isFolder) pos = 3;
           return AlertDialog(
             scrollable: true,
             title: Text("Delete this item ?"),
@@ -428,7 +450,7 @@ class _HomePageState extends State<HomePage> {
                   updateHabit();
                   subInit();
 
-                  // print("${name} => ${itemVal}");
+                  // //print("${name} => ${itemVal}");
                   setState(() {});
 
                   Navigator.of(context).pop(); // Close the dialog
@@ -444,15 +466,26 @@ class _HomePageState extends State<HomePage> {
             ],
           );
         });
-    print(_myBox.get("HistoryList"));
+    //print(_myBox.get("HistoryList"));
   }
 
   String folderName = "Inbox";
   bool showHeatMap = false;
+
+  void signUserOut() {
+    FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => AuthPage(),
+      ),
+    );
+  }
+
   // bool pp = true;
   @override
   Widget build(BuildContext context) {
-    // print("showItem: " + "$showItem");
+    // //print("showItem: " + "$showItem");
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -485,6 +518,17 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Icon(Icons.show_chart_rounded),
               ),
+            ),
+            GestureDetector(
+              onTap: () {
+                signUserOut();
+                // showHeatMap = !showHeatMap;
+                // setState(() {});
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Icon(Icons.logout),
+              ),
             )
           ],
         ),
@@ -501,10 +545,10 @@ class _HomePageState extends State<HomePage> {
                       if (index < 2) {
                         return GestureDetector(
                           onTap: () {
-                            // print("In draweer");
-                            // print(labelsList[index]);
-                            // print(index);
-                            // print(labelsList);
+                            // //print("In draweer");
+                            // //print(labelsList[index]);
+                            // //print(index);
+                            // //print(labelsList);
                             setState(() {
                               // val = index;
                               // showItem = labelsList[index];
@@ -512,11 +556,12 @@ class _HomePageState extends State<HomePage> {
                               folderClicked = true;
                               labelClicked = false;
 
-                              //print(folder[index][1]);
+                              ////print(folder[index][1]);
 
                               currentlyShowing = folder[index][1];
+                              folderName = folder[index][0];
 
-                              //print("CLICKED");
+                              ////print("CLICKED");
                               Navigator.of(context).pop();
                             });
                           },
@@ -609,10 +654,10 @@ class _HomePageState extends State<HomePage> {
                                               setState(() {});
                                             },
                                             onTap: () {
-                                              //print("In draweer");
-                                              // //print(labelsList[index]);
-                                              //print(index);
-                                              // //print(labelsList);
+                                              ////print("In draweer");
+                                              // ////print(labelsList[index]);
+                                              ////print(index);
+                                              // ////print(labelsList);
                                               setState(() {
                                                 // val = index;
                                                 // showItem = labelsList[index];
@@ -622,7 +667,7 @@ class _HomePageState extends State<HomePage> {
                                                     labels[item[0]] as int;
 
                                                 folderName = item[0];
-                                                //print("CLICKED");
+                                                ////print("CLICKED");
                                                 Navigator.of(context).pop();
                                               });
                                             },
@@ -668,10 +713,10 @@ class _HomePageState extends State<HomePage> {
                             setState(() {});
                           },
                           onTap: () {
-                            //print("In draweer");
-                            // //print(labelsList[index]);
-                            //print(index);
-                            // //print(labelsList);
+                            ////print("In draweer");
+                            // ////print(labelsList[index]);
+                            ////print(index);
+                            // ////print(labelsList);
                             setState(() {
                               // val = index;
                               // showItem = labelsList[index];
@@ -679,12 +724,12 @@ class _HomePageState extends State<HomePage> {
                               folderClicked = true;
                               labelClicked = false;
 
-                              //print(folder[index][1]);
+                              ////print(folder[index][1]);
 
                               currentlyShowing = folder[index][1];
                               folderName = folder[index][0];
 
-                              //print("CLICKED");
+                              ////print("CLICKED");
                               Navigator.of(context).pop();
                             });
                           },
@@ -863,7 +908,7 @@ class _HomePageState extends State<HomePage> {
                                                   : true;
                                           updateHabit();
                                           _myBox.put("HabitList", habitsList);
-                                          print(_myBox.get("HistoryList"));
+                                          //print(_myBox.get("HistoryList"));
                                         });
                                       },
                                     ),
@@ -1082,7 +1127,7 @@ class _HomePageState extends State<HomePage> {
                             // focusNode: _focusNode,
                             cursorColor: Colors.black,
                             decoration: InputDecoration(
-                              hintText: 'Search...',
+                              hintText: 'Write Something ...',
                             )),
                       ),
                       Row(
@@ -1110,7 +1155,7 @@ class _HomePageState extends State<HomePage> {
                             onTap: () {
                               showLabels = false;
                               showFolders = !showFolders;
-                              //print("SHOW FOLDER CLICKED");
+                              ////print("SHOW FOLDER CLICKED");
                               setState(() {});
                             },
                             child: Padding(
@@ -1145,7 +1190,7 @@ class _HomePageState extends State<HomePage> {
                                 }
                               }
 
-                              // print("Currently Showing: "+"$currentlyShowing");
+                              // //print("Currently Showing: "+"$currentlyShowing");
                               // habitsList
                               for (var i = 0; i < foldersState.length; i++) {
                                 if (foldersState[i] == 1) {
@@ -1191,6 +1236,6 @@ class _HomePageState extends State<HomePage> {
       updateParentPage();
       addItemStateButton = true;
     });
-    print(_myBox.get("HistoryList"));
+    //print(_myBox.get("HistoryList"));
   }
 }

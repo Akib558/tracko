@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tracko/database.dart';
+// import 'package:tracko/database.dart';
 import 'package:tracko/all_colors.dart';
 
 class AddNewItem extends StatefulWidget {
@@ -278,14 +278,20 @@ class _AddNewItemState extends State<AddNewItem> {
                         ),
                       ),
                     ),
+
+                    // labelAddState == 0 ? Icon(Icons.check_box) : Container(),
                     labelAddState == 0
-                        ? Icon(Icons.check_box)
-                        : Expanded(
-                            child: Container(
-                                height: 20,
-                                // width: double.infinity,
-                                child: inputFieldForLabel()),
-                          ),
+                        ? Icon(
+                            Icons.repeat,
+                            color: Colors.black,
+                          )
+                        : Container(),
+                    // : Expanded(
+                    //     child: Container(
+                    //         height: 20,
+                    //         // width: double.infinity,
+                    //         child: inputFieldForLabel()),
+                    //   ),
                   ],
                 ),
               ],

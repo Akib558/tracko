@@ -9,6 +9,11 @@
 </div>
 <hr>
 
+<p>
+In my application, I offer a comprehensive feature set designed to enhance the user experience. Users can seamlessly authenticate and register, manage habits with flexibility, and personalize their organization using labels and folders. Intuitive sorting and a dedicated focus mode optimize productivity, while a habit activity heatmap promotes self-awareness. The interface is sleek and user-friendly, and I employ <b>state management with Provider</b>, leverage <b>Firebase for authentication and cloud storage</b>, and utilize <b>Hive for efficient local storage</b>.
+</p>
+<hr>
+
 <p align="center">
     <img src="readmeContents/9.jpg" width=30% alt="Your Image Description">
     <img src="readmeContents/2.jpg" width=30% alt="Your Image Description">
@@ -29,6 +34,8 @@
     <img src="readmeContents/8.jpg" width=30% alt="Your Image Description">
     <!-- <img src="readmeContents/6.jpg" width=30% alt="Your Image Description"> -->
 </p>
+
+<hr>
 
 ## Features
 

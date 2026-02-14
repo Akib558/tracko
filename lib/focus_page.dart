@@ -7,9 +7,11 @@ import 'package:provider/provider.dart';
 import 'package:tracko/home_page.dart';
 import 'dart:async';
 import 'package:tracko/math_functions.dart';
-
 import 'package:tracko/all_colors.dart';
 import 'package:tracko/provider/focus_provider.dart';
+import 'package:tracko/core/theme/app_colors.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:iconsax/iconsax.dart';
 
 class FocusItemListPage extends StatefulWidget {
   const FocusItemListPage({super.key});
@@ -485,67 +487,83 @@ class _FocusItemListPageState extends State<FocusItemListPage> {
 
   @override
   Widget build(BuildContext context) {
-    // final focusProvider = Provider.of<FocusProvider>(context);
     print("build");
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
       appBar: AppBar(
-        title: Text("Focus"),
+        title: Text(
+          "Focus Mode",
+          style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+        ),
+        elevation: 0,
         actions: [
-          GestureDetector(
-            onTap: () {
-              // showHeatMap = !showHeatMap;
+          IconButton(
+            onPressed: () {
               _myBox.put("focus", 0);
-              // return FocusItemListPage();
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (BuildContext context) => HomePage(),
+                  builder: (BuildContext context) => const HomePage(),
                 ),
               );
-              // setState(() {});
             },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Icon(Icons.center_focus_strong),
-            ),
+            icon: const Icon(Iconsax.home),
+            tooltip: 'Back to Home',
           ),
         ],
       ),
       body: Container(
+        decoration: BoxDecoration(
+          gradient: isDark ? null : LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.lightBackground,
+              Colors.white,
+            ],
+          ),
+        ),
         child: ListView.builder(
+          padding: const EdgeInsets.all(16),
           itemCount: habitsList.length,
           itemBuilder: (context, index) {
-            // String remain = formatDuration(habitsList[index][5][1]);
-            // String goal = formatDuration(habitsList[index][5][2]);
             if (habitsList[index][2].contains(4)) {
               return Padding(
-                padding: const EdgeInsets.all(12.0),
+                padding: const EdgeInsets.only(bottom: 16.0),
                 child: Container(
-                  padding: EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                      color: Colors.grey[400],
-                      borderRadius: BorderRadius.circular(12)),
+                    color: isDark ? AppColors.darkSurface : Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
                   child: Row(
-                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        // color: Colors.red,
-                        height: 60,
-                        width: 60,
+                        height: 70,
+                        width: 70,
                         child: Stack(children: [
                           Consumer<FocusProvider>(
                               builder: (context, value, child) {
                             return CircularPercentIndicator(
-                                radius: 30,
-                                lineWidth: 10,
-                                progressColor: myColors[(statusRatio(
-                                            habitsList[index][5][1],
-                                            habitsList[index][5][2]) *
-                                        100)
-                                    .toInt()],
-                                // percent: statusRatio(habitsList[index][5][1],
-                                // habitsList[index][5][2]),
-                                percent: focusProvider.habitsList[index][0]);
+                              radius: 35,
+                              lineWidth: 6,
+                              progressColor: myColors[(statusRatio(
+                                          habitsList[index][5][1],
+                                          habitsList[index][5][2]) *
+                                      100)
+                                  .toInt()],
+                              backgroundColor: Colors.grey.shade200,
+                              percent: focusProvider.habitsList[index][0],
+                              circularStrokeCap: CircularStrokeCap.round,
+                            );
                           }),
                           Center(
                             child: GestureDetector(

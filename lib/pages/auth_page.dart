@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tracko/focus_page.dart';
 import 'package:tracko/home_page.dart';
-import 'package:tracko/pages/login_page.dart';
+import 'package:tracko/pages/login_or_register.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class AuthPage extends StatelessWidget {
@@ -18,11 +18,11 @@ class AuthPage extends StatelessWidget {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               if (_myBox.get("focus") == 1) {
-                return FocusItemListPage();
+                return const FocusItemListPage();
               }
-              return HomePage();
+              return const HomePage();
             } else {
-              return LoginPage();
+              return const LoginOrRegister();
             }
           }),
     );

@@ -1,20 +1,18 @@
-// import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-// import 'package:tracko/database.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tracko/edit_item.dart';
-// import 'package:tracko/add_item.dart';
 import 'package:tracko/all_colors.dart';
 import 'package:tracko/focus_page.dart';
-// import 'dart:math';
-// import 'package:tracko/math_functions.dart';
 import 'package:tracko/math_functions.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
-// import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:tracko/pages/auth_page.dart';
+import 'package:tracko/core/theme/app_colors.dart';
+import 'package:tracko/core/constants/app_constants.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:gap/gap.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -485,51 +483,43 @@ class _HomePageState extends State<HomePage> {
   // bool pp = true;
   @override
   Widget build(BuildContext context) {
-    // //print("showItem: " + "$showItem");
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text(folderName),
+          title: Text(
+            folderName,
+            style: GoogleFonts.inter(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          elevation: 0,
           actions: [
-            GestureDetector(
-              onTap: () {
-                // showHeatMap = !showHeatMap;
+            IconButton(
+              onPressed: () {
                 _myBox.put("focus", 1);
-                // return FocusItemListPage();
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (BuildContext context) => FocusItemListPage(),
                   ),
                 );
-                // setState(() {});
               },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Icon(Icons.center_focus_strong),
-              ),
+              icon: const Icon(Iconsax.timer_1),
+              tooltip: 'Focus Mode',
             ),
-            GestureDetector(
-              onTap: () {
+            IconButton(
+              onPressed: () {
                 showHeatMap = !showHeatMap;
                 setState(() {});
               },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Icon(Icons.show_chart_rounded),
-              ),
+              icon: Icon(showHeatMap ? Iconsax.chart_215 : Iconsax.chart_21),
+              tooltip: 'Toggle Heatmap',
             ),
-            GestureDetector(
-              onTap: () {
-                signUserOut();
-                // showHeatMap = !showHeatMap;
-                // setState(() {});
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Icon(Icons.logout),
-              ),
-            )
+            IconButton(
+              onPressed: signUserOut,
+              icon: const Icon(Iconsax.logout),
+              tooltip: 'Logout',
+            ),
           ],
         ),
         drawer: Drawer(
@@ -933,35 +923,22 @@ class _HomePageState extends State<HomePage> {
           //   ),
           if (addItemStateButton)
             Positioned(
-                // left: 0,
-                right: 30,
-                bottom: 30,
-                // top: 0,
-                child: Material(
-                  elevation: 5.0, // Adjust the elevation value as needed
-                  shape: CircleBorder(), // Use CircleBorder to make it circular
-                  child: Ink(
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      shape: BoxShape.circle, // Make it circular
-                    ),
-                    child: InkWell(
-                      // Handle button tap here
-                      onTap: () {
-                        _showBottomDialog(context);
-                        setState(() {});
-                      },
-                      borderRadius: BorderRadius.circular(
-                          50.0), // Half the width/height to make it circular
-                      child: Container(
-                          width: 70.0, // Adjust the button size
-                          height: 70.0,
-                          // Adjust the button size
-                          alignment: Alignment.center,
-                          child: Icon(Icons.add)),
-                    ),
-                  ),
-                ))
+              right: 30,
+              bottom: 30,
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  _showBottomDialog(context);
+                  setState(() {});
+                },
+                backgroundColor: AppColors.primary,
+                icon: const Icon(Iconsax.add),
+                label: Text(
+                  'Add Habit',
+                  style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                ),
+                elevation: 2,
+              ),
+            ),
         ]),
       ),
     );
